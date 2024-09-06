@@ -1,6 +1,7 @@
 package org.parkkey.ReadRDS.controller;
 
 import org.parkkey.ReadRDS.queries.Admin.FetchAnalyticsData;
+import org.parkkey.ReadRDS.queries.Admin.FetchEmployeeDetails;
 import org.parkkey.ReadRDS.queries.Admin.FetchVehicleDetails;
 import org.parkkey.ReadRDS.queries.Vendor.FetchVendorAnalyticsData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,13 @@ public class MainController {
     public FetchVendorAnalyticsData.FetchVendorAnalyticsDataOutput handler(@RequestBody FetchVendorAnalyticsData.FetchVendorAnalyticsDataInput input){
         return FetchVendorAnalyticsData.handleRequest(input,jdbcTemplate);
     }
+
+    @PostMapping("/fetch-employee")
+    public FetchEmployeeDetails.FetchEmployeeDetailsOutput handler(@RequestBody FetchEmployeeDetails.FetchEmployeeDetailsInput input){
+        return FetchEmployeeDetails.handleRequest(input,jdbcTemplate);
+    }
+
+
 
 
 
