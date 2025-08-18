@@ -4,6 +4,7 @@ import org.parkkey.ReadRDS.queries.Admin.FetchAnalyticsData;
 import org.parkkey.ReadRDS.queries.Admin.FetchEmployeeDetails;
 import org.parkkey.ReadRDS.queries.Admin.FetchVehicleDetails;
 import org.parkkey.ReadRDS.queries.Vendor.FetchVendorAnalyticsData;
+import org.parkkey.ReadRDS.queries.customerApp.FetchPaymentHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,11 @@ public class MainController {
     @PostMapping("/fetch-employee")
     public FetchEmployeeDetails.FetchEmployeeDetailsOutput handler(@RequestBody FetchEmployeeDetails.FetchEmployeeDetailsInput input){
         return FetchEmployeeDetails.handleRequest(input,jdbcTemplate);
+    }
+
+    @PostMapping("/payment-history")
+    public FetchPaymentHistory.FetchPaymentHistoryOutput handler(@RequestBody FetchPaymentHistory.FetchPaymentHistoryInput input){
+        return FetchPaymentHistory.handleRequest(input,jdbcTemplate);
     }
 
 

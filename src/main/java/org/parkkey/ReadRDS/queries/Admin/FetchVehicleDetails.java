@@ -21,6 +21,7 @@ public class FetchVehicleDetails {
                 "ParkingTicket.entryDateTime, " +
                 "ParkingTicket.exitDateTime, " +
                 "ParkingTicket.parkingStatus, " +
+                "ParkingTicket.otp, " +
                 "ParkingSpace.parkingName, " +
                 "Employee.employeeName " +
                 "FROM ParkingTicket " +
@@ -53,6 +54,7 @@ public class FetchVehicleDetails {
         }
 
         sql+=whereClause;
+        sql+="AND ParkingTicket.parkingStatus != 'IN_PROGRESS' " ;
         sql+="Order by ParkingTicket.updatedDate desc ";
 
 
@@ -77,6 +79,7 @@ public class FetchVehicleDetails {
             vehicleDetails.setExitTime(rs.getString("exitDateTime") != null ? rs.getString("exitDateTime") : "");
             vehicleDetails.setParkingName(rs.getString("parkingName") != null ? rs.getString("parkingName") : "");
             vehicleDetails.setEmployeeName(rs.getString("employeeName") != null ? rs.getString("employeeName") : "");
+            vehicleDetails.setOtp(rs.getString("otp") != null ? rs.getString("otp") : "");
 
             return vehicleDetails;
         }
@@ -93,6 +96,7 @@ public class FetchVehicleDetails {
         private String exitTime;
         private String parkingName;
         private String employeeName;
+        private String otp;
     }
 
     @Setter

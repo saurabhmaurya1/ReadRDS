@@ -19,12 +19,14 @@ public class FetchAnalyticsData {
     public static FetchAnalyticsData.FetchAnalyticsDataOutput handleRequest(FetchAnalyticsDataInput input,JdbcTemplate jdbcTemplate){
 
         String query = "SELECT " +
-                "(SELECT COUNT(*) FROM ParkingTicket WHERE DATE_FORMAT(createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS current_month_bookings, " +
-                "(SELECT COUNT(*) FROM ParkingTicket WHERE DATE_FORMAT(createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS last_month_bookings, " +
-                "(SELECT SUM(totalCharges) FROM ParkingTicket WHERE DATE_FORMAT(createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS current_month_revenue, " +
-                "(SELECT SUM(totalCharges) FROM ParkingTicket WHERE DATE_FORMAT(createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS last_month_revenue, " +
-                "(SELECT COUNT(*) FROM ParkingTicket WHERE DATE(createdDate) = ? #vendorID# #parkingSpaceID# #employeeID#) AS todays_bookings, " +
-                "(SELECT SUM(totalCharges) FROM ParkingTicket WHERE DATE(createdDate) = ? #vendorID# #parkingSpaceID# #employeeID#) AS todays_revenue";
+                "(SELECT COUNT(*) FROM ParkingTicket P WHERE DATE_FORMAT(P.createdDate, '%Y-%m') = ? AND P.parkingStatus!='IN_PROGRESS' #vendorID# #parkingSpaceID# #employeeID#) AS current_month_bookings, " +
+                "(SELECT COUNT(*) FROM ParkingTicket P WHERE DATE_FORMAT(P.createdDate, '%Y-%m') = ? AND P.parkingStatus!='IN_PROGRESS' #vendorID# #parkingSpaceID# #employeeID#) AS last_month_bookings, " +
+                "(SELECT SUM(P.totalCharges) FROM ParkingTicket P WHERE DATE_FORMAT(P.createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS current_month_revenue, " +
+                "(SELECT SUM(P.totalCharges) FROM ParkingTicket P WHERE DATE_FORMAT(P.createdDate, '%Y-%m') = ? #vendorID# #parkingSpaceID# #employeeID#) AS last_month_revenue, " +
+                "(SELECT COUNT(*) FROM ParkingTicket P WHERE DATE(P.createdDate) = ? AND P.parkingStatus!='IN_PROGRESS' #vendorID# #parkingSpaceID# #employeeID#) AS todays_bookings, " +
+                "(SELECT SUM(P.totalCharges) FROM ParkingTicket P WHERE DATE(P.createdDate) = ? AND P.parkingStatus!='IN_PROGRESS' #vendorID# #parkingSpaceID# #employeeID#) AS todays_revenue, " +
+                "(SELECT SUM(T.amount) FROM Transactions T JOIN ParkingTicket P ON T.parkingTicketID = P.parkingTicketID WHERE DATE(P.createdDate) = ? AND T.modeOfPayment = 'Wallet' #vendorID# #parkingSpaceID# #employeeID#) AS todays_revenue_wallet, " +
+                "(SELECT SUM(T.amount) FROM Transactions T JOIN ParkingTicket P ON T.parkingTicketID = P.parkingTicketID WHERE DATE(P.createdDate) = ? AND T.modeOfPayment = 'Cash' #vendorID# #parkingSpaceID# #employeeID#) AS todays_revenue_cash";
 
         // Calculate the current month, previous month, and current date
         String currentMonth = getCurrentMonth();
@@ -39,13 +41,16 @@ public class FetchAnalyticsData {
         params.add(lastMonth);
         params.add(currentDate);
         params.add(currentDate);
+        params.add(currentDate);
+        params.add(currentDate);
 
 
 
 
-        query = query.replaceAll("#vendorID#", input.getVendorID() != null && !input.getVendorID().isBlank() ? " AND ParkingTicket.vendorID = '"+input.getVendorID()+"'" : "")
-                .replaceAll("#parkingSpaceID#", input.getParkingSpaceID() != null && !input.getParkingSpaceID().isBlank() ? " AND ParkingTicket.parkingSpaceID = '"+input.getParkingSpaceID()+"'" : "")
-                .replaceAll("#employeeID#", input.getEmployeeID() != null && !input.getEmployeeID().isBlank() ? " AND ParkingTicket.employeeID = '"+input.getEmployeeID()+"'" : "");
+        query = query.replaceAll("#vendorID#", input.getVendorID() != null && !input.getVendorID().isBlank() ? " AND P.vendorID = '"+input.getVendorID()+"'" : "")
+                .replaceAll("#parkingSpaceID#", input.getParkingSpaceID() != null && !input.getParkingSpaceID().isBlank() ? " AND P.parkingSpaceID = '"+input.getParkingSpaceID()+"'" : "")
+                .replaceAll("#employeeID#", input.getEmployeeID() != null && !input.getEmployeeID().isBlank() ? " AND P.employeeID = '"+input.getEmployeeID()+"'" : "");
+
 
 
 
@@ -62,6 +67,8 @@ public class FetchAnalyticsData {
         stats.setLastMonthRevenue(rs.getDouble("last_month_revenue"));
         stats.setTodaysBookings(rs.getInt("todays_bookings"));
         stats.setTodaysRevenue(rs.getDouble("todays_revenue"));
+        stats.setTodaysRevenueWallet(rs.getDouble("todays_revenue_wallet"));
+        stats.setTodaysRevenueCash(rs.getDouble("todays_revenue_cash"));
 
         // Calculate the percentage changes
         if (stats.getLastMonthBookings() != 0) {
@@ -106,6 +113,9 @@ public class FetchAnalyticsData {
         private double revenueChangePercentage;
         private int todaysBookings;
         private double todaysRevenue;
+        private double todaysRevenueWallet;
+        private double todaysRevenueCash;
+
 
     }
 

@@ -18,6 +18,7 @@ public class FetchEmployeeDetails {
     public static FetchEmployeeDetailsOutput handleRequest(FetchEmployeeDetailsInput input, JdbcTemplate jdbcTemplate) {
         String sql = "SELECT Employee.employeeID, " +
                 "Employee.employeeName, " +
+                "Employee.mobileNo, " +
                 "ParkingSpace.parkingName, " +
                 "COUNT(ParkingTicket.parkingTicketID) AS todaysBooking " +
                 "FROM Employee " +
@@ -55,6 +56,7 @@ public class FetchEmployeeDetails {
 
             employeeDetails.setEmployeeID(rs.getString("employeeID") != null ? rs.getString("employeeID") : "");
             employeeDetails.setEmployeeName(rs.getString("employeeName") != null ? rs.getString("employeeName") : "");
+            employeeDetails.setMobileNo(rs.getString("mobileNo") != null ? rs.getString("mobileNo") : "");
             employeeDetails.setParkingName(rs.getString("parkingName") != null ? rs.getString("parkingName") : "");
             employeeDetails.setTodaysBooking(rs.getInt("todaysBooking"));
 
@@ -69,6 +71,7 @@ public class FetchEmployeeDetails {
     public static class EmployeeDetails {
         private String employeeID;
         private String employeeName;
+        private String mobileNo;
         private String parkingName;
         private int todaysBooking;
     }
